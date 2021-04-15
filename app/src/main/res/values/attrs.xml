@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChartView">
+        <!--Цвет кривой и точек-->
+        <attr name="chartColor" format="reference|color" />
+        <!--Цвет численных значений-->
+        <attr name="valuesColor" format="reference|color" />
+        <!--Цвет годов, месяцев, единиц измерения-->
+        <attr name="passiveColor" format="reference|color" />
+        <!--Цвет разделителей секций-->
+        <attr name="separatorColor" format="color" />
+        <!--Цвет залифки графика-->
+        <attr name="fillColor" format="color" />
+        <!--Количество секций (месяцев, вмещающихся на экран)-->
+        <attr name="sectionCount" format="integer" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="203dp"
+        android:layout_gravity="center">
+
+        <com.yulmaso.charttest.chartView.CountersChartView
+            android:id="@+id/chart"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:chartColor="@color/chartColor"
+            app:passiveColor="@color/gray"
+            app:valuesColor="@color/black"
+            app:separatorColor="@color/separator"
+            app:fillColor="@color/chartBg" />
+
+    </HorizontalScrollView>
+
+</FrameLayout>
