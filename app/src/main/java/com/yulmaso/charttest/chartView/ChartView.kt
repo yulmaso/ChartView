@@ -1,18 +1,19 @@
 package com.yulmaso.charttest.chartView
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.yulmaso.charttest.R
 import java.util.*
 
 /**
  *  Created by yulmaso
  *  Date: 15.04.21
+ *
+ *  Abstract chart view class, that contains methods to ease chart drawing.
  */
 abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) :
     View(context, attrs)
@@ -44,7 +45,7 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     }
 
     /**
-     *  Логика отрисовки графика. Вызывается в onDraw.
+     *  Chart draw logic. Is called from [onDraw].
      *
      *  @param canvas       - Canvas из onDraw
      *  @param data         - Список значений
@@ -53,16 +54,19 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     abstract fun drawChart(canvas: Canvas, data: List<T>, sectionWidth: Int)
 
     /**
-     *  Здесь задаём ширину вью. Вызывается перед onDraw.
+     *  Override this method if you want to change the data before drawing.
+     *
+     *  @param data - data from [setData] or concatenated list from [addData]
      */
+    open fun modifyData(data: List<T>): List<T> {
+        return data.sorted()
+    }
+
     final override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthMeasure = viewportWidth?.let { data.size * it / sectionCount } ?: widthMeasureSpec
         setMeasuredDimension(widthMeasure, heightMeasureSpec)
     }
 
-    /**
-     *  Собственно метод отрисовки. Вызывается после invalidate().
-     */
     final override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         if (data.isEmpty() || canvas == null) return
@@ -70,31 +74,37 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     }
 
     /**
-     *  Метод установки данных во вью.
+     *  Set [data] to view.
+     *
+     *  @param data             - chart data
+     *  @param viewportWidth    - visible width of view
      */
-    open fun setData(data: List<T>, viewportWidth: Int) {
+    fun setData(data: List<T>, viewportWidth: Int) {
         this.data.clear()
-        this.data.addAll(data.sorted())
+        this.data.addAll(modifyData(data))
         this.viewportWidth = viewportWidth
         invalidate()
     }
 
     /**
-     *  Метод добавления данных во вью. (Вызывает полную перерисовку графика)
+     *  Add [data] to view. (Leads to full redraw).
+     *
+     *  @param data             - chart data
+     *  @param viewportWidth    - visible width of view
      */
-    open fun addData(data: List<T>, viewportWidth: Int) {
+    fun addData(data: List<T>, viewportWidth: Int) {
         val temp = ArrayList<T>()
         temp.addAll(data)
         temp.addAll(this.data)
 
         this.data.clear()
-        this.data.addAll(temp.sorted())
+        this.data.addAll(modifyData(temp))
         this.viewportWidth = viewportWidth
         invalidate()
     }
 
     /**
-     *  Метод отрисовки точки на графике.
+     *  Draw a circle point on [canvas] with center at ([x], [y]) and custom [radius] & [color].
      */
     protected fun drawPoint(canvas: Canvas, x: Float, y: Float, radius: Float, color: Int) {
         paint.reset()
@@ -107,7 +117,7 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     }
 
     /**
-     *  Метод отрисовки разделителя секций.
+     *  Draw a vertical separator on [canvas] which starts at ([x], [top]) and ends at ([x], [bottom]]).
      */
     protected fun drawSeparator(canvas: Canvas, x: Float, top: Float, bottom: Float) {
         paint.reset()
@@ -120,9 +130,30 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     }
 
     /**
-     *  Метод отрисовки кривой между двумя точками на графике.
+     *  Draw a vertical separator on [canvas] which starts at ([x], [top]) and ends at ([x], [bottom]])
+     *  which has gradient color.
+     */
+    protected fun drawGradientSeparator(canvas: Canvas, x: Float, top: Float, bottom: Float) {
+        val gradient = LinearGradient(
+            x, bottom, x, top,
+            intArrayOf(Color.WHITE, separatorColor, Color.WHITE),
+            null,
+            Shader.TileMode.MIRROR
+        )
+        paint.reset()
+        paint.style = Paint.Style.FILL_AND_STROKE
+        paint.isAntiAlias = true
+        paint.strokeWidth = 2f
+        paint.isDither = true
+        paint.shader = gradient
+
+        canvas.drawLine(x, top, x, bottom, paint)
+    }
+
+    /**
+     *  Draw bezier curve on [canvas] which starts at ([x1], [y1]) and ends at ([x2], [y2]).
      *
-     *  @param bottom   - set this as yBottom of chart to fill a path under curve
+     *  @param yBottom - set this as yBottom of chart to fill a path under curve with [fillColor]
      */
     protected fun drawCurve(canvas: Canvas, x1: Float, y1: Float, x2: Float, y2: Float, yBottom: Float? = null) {
         paint.reset()
@@ -153,7 +184,8 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     }
 
     /**
-     *  Метод отрисовки текста.
+     *  Draw the [text] with [color] on [canvas] which bottom center is at ([x], [y]).
+     *  Set [bold] to true to make this text bold.
      */
     protected fun drawText(canvas: Canvas, x: Float, y: Float, text: String, color: Int, textSize: Float, bold: Boolean = false) {
         paint.reset()

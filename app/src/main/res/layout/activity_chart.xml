@@ -6,7 +6,7 @@
 
     <HorizontalScrollView
         android:layout_width="wrap_content"
-        android:layout_height="203dp"
+        android:layout_height="250dp"
         android:layout_gravity="center">
 
         <com.yulmaso.charttest.chartView.CountersChartView
