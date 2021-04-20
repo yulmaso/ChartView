@@ -65,7 +65,7 @@ class CountersChartView(context: Context, attrs: AttributeSet): ChartView<ChartV
 
             if (index == 0) {
                 // Рисуем линию от левой границы графика до первой точки
-                drawCurve(canvas, 0f, pointY, pointX, pointY, chartBottom)
+                drawCurve(canvas, 0f, pointY, pointX, pointY, chartColor, chartBottom)
             }
 
             if (index != data.lastIndex) {
@@ -75,10 +75,10 @@ class CountersChartView(context: Context, attrs: AttributeSet): ChartView<ChartV
 
                 // Рисуем разделитель (вертикальную палку) и кривую между этой и следующей точками
                 drawGradientSeparator(canvas, separatorX, YEAR_MARGIN / 2, height.toFloat())
-                drawCurve(canvas, pointX, pointY, nextPointX, nextPointY, chartBottom)
+                drawCurve(canvas, pointX, pointY, nextPointX, nextPointY, chartColor, chartBottom)
             } else {
                 // Рисуем линию от последней точки до правой границы графика
-                drawCurve(canvas, pointX, pointY, width.toFloat(), pointY, chartBottom)
+                drawCurve(canvas, pointX, pointY, width.toFloat(), pointY, chartColor, chartBottom)
             }
 
             // Рисуем кружок обводки вокруг точки и поверх него саму точку

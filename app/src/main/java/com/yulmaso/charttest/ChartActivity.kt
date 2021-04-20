@@ -1,9 +1,6 @@
 package com.yulmaso.charttest
 
-import android.content.res.Resources
 import android.os.Bundle
-import android.view.View
-import android.widget.HorizontalScrollView
 import androidx.appcompat.app.AppCompatActivity
 import com.yulmaso.charttest.chartView.ChartValue
 import com.yulmaso.charttest.chartView.CountersChartView
@@ -35,10 +32,7 @@ class ChartActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chart)
 
-        findViewById<CountersChartView>(R.id.chart).setData(
-            data,
-            Resources.getSystem().displayMetrics.widthPixels
-        )
+        findViewById<CountersChartView>(R.id.chart).setData(data)
 
     }
 

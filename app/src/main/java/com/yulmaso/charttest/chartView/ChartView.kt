@@ -3,24 +3,22 @@ package com.yulmaso.charttest.chartView
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.View
-import androidx.core.content.ContextCompat
+import android.widget.HorizontalScrollView
 import com.yulmaso.charttest.R
+import com.yulmaso.charttest.chartView.ChartView.Chart
 import java.util.*
 
 /**
  *  Created by yulmaso
- *  Date: 15.04.21
+ *  Date: 20.04.21
  *
- *  Abstract chart view class, that contains methods to ease chart drawing.
+ *  Abstract view class, that contains methods to ease chart drawing.
+ *  This is HorizontalScrollView container that holds actual [Chart] view.
  */
 abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) :
-    View(context, attrs)
+    HorizontalScrollView(context, attrs)
 {
-    private val paint = Paint()
-    private val path = Path()
-
     // Attrs
     protected val chartColor: Int
     protected val valuesColor: Int
@@ -28,10 +26,6 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     protected val separatorColor: Int
     protected val fillColor: Int
     protected val sectionCount: Int
-
-    private var viewportWidth: Int? = null
-
-    private var data = ArrayList<T>()
 
     init {
         context.theme.obtainStyledAttributes(attrs, R.styleable.ChartView, 0, 0).apply {
@@ -44,8 +38,15 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
         }
     }
 
+    private val paint = Paint()
+    private val path = Path()
+
+    private var data = ArrayList<T>()
+
+    private var chart: Chart? = null
+
     /**
-     *  Chart draw logic. Is called from [onDraw].
+     *  Chart draw logic callback. Is called from [onDraw] of inner [chart].
      *
      *  @param canvas       - Canvas из onDraw
      *  @param data         - Список значений
@@ -62,45 +63,30 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
         return data.sorted()
     }
 
-    final override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val widthMeasure = viewportWidth?.let { data.size * it / sectionCount } ?: widthMeasureSpec
-        setMeasuredDimension(widthMeasure, heightMeasureSpec)
-    }
-
-    final override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        if (data.isEmpty() || canvas == null) return
-        viewportWidth?.let { drawChart(canvas, data, it / sectionCount) }
-    }
-
     /**
      *  Set [data] to view.
      *
      *  @param data             - chart data
-     *  @param viewportWidth    - visible width of view
      */
-    fun setData(data: List<T>, viewportWidth: Int) {
+    fun setData(data: List<T>) {
         this.data.clear()
         this.data.addAll(modifyData(data))
-        this.viewportWidth = viewportWidth
-        invalidate()
+        initChart()
     }
 
     /**
      *  Add [data] to view. (Leads to full redraw).
      *
      *  @param data             - chart data
-     *  @param viewportWidth    - visible width of view
      */
-    fun addData(data: List<T>, viewportWidth: Int) {
+    fun addData(data: List<T>) {
         val temp = ArrayList<T>()
         temp.addAll(data)
         temp.addAll(this.data)
 
         this.data.clear()
         this.data.addAll(modifyData(temp))
-        this.viewportWidth = viewportWidth
-        invalidate()
+        initChart()
     }
 
     /**
@@ -155,17 +141,15 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
      *
      *  @param yBottom - set this as yBottom of chart to fill a path under curve with [fillColor]
      */
-    protected fun drawCurve(canvas: Canvas, x1: Float, y1: Float, x2: Float, y2: Float, yBottom: Float? = null) {
+    protected fun drawCurve(canvas: Canvas, x1: Float, y1: Float, x2: Float, y2: Float, color: Int, yBottom: Float? = null) {
         paint.reset()
         paint.style = Paint.Style.STROKE
         paint.isAntiAlias = true
         paint.strokeWidth = 2f
-        paint.color = chartColor
+        paint.color = color
 
-        // Рассчитываем середину отрезка по оси X
         val xMiddle = (x1 + x2) / 2
 
-        // Рисуем кривую Безье
         path.reset()
         path.moveTo(x1, y1)
         path.cubicTo(xMiddle, y1, xMiddle, y2, x2, y2)
@@ -196,5 +180,28 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
         paint.textAlign = Paint.Align.CENTER
         paint.isFakeBoldText = bold
         canvas.drawText(text, x, y, paint)
+    }
+
+    private fun initChart() {
+        chart?.let { removeView(it) }
+        chart = Chart(context)
+        addView(chart)
+    }
+
+    /**
+     *  Private view that holds chart.
+     */
+    private inner class Chart(context: Context) : View(context) {
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            val widthMeasure = data.size * widthMeasureSpec / sectionCount
+            setMeasuredDimension(widthMeasure, heightMeasureSpec)
+        }
+
+        override fun onDraw(canvas: Canvas?) {
+            super.onDraw(canvas)
+            if (data.isEmpty() || canvas == null) return
+            drawChart(canvas, data, measuredWidth / data.size)
+        }
     }
 }
