@@ -78,7 +78,7 @@ class CountersChartView(context: Context, attrs: AttributeSet): ChartView<ChartV
                 drawCurve(canvas, pointX, pointY, nextPointX, nextPointY, chartColor, chartBottom)
             } else {
                 // Рисуем линию от последней точки до правой границы графика
-                drawCurve(canvas, pointX, pointY, width.toFloat(), pointY, chartColor, chartBottom)
+                drawCurve(canvas, pointX, pointY, canvas.width.toFloat(), pointY, chartColor, chartBottom)
             }
 
             // Рисуем кружок обводки вокруг точки и поверх него саму точку

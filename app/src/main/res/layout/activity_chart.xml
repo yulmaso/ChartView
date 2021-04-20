@@ -4,21 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <HorizontalScrollView
+    <com.yulmaso.charttest.chartView.CountersChartView
+        android:id="@+id/chart"
         android:layout_width="wrap_content"
         android:layout_height="250dp"
-        android:layout_gravity="center">
-
-        <com.yulmaso.charttest.chartView.CountersChartView
-            android:id="@+id/chart"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:chartColor="@color/chartColor"
-            app:passiveColor="@color/gray"
-            app:valuesColor="@color/black"
-            app:separatorColor="@color/separator"
-            app:fillColor="@color/chartBg" />
-
-    </HorizontalScrollView>
+        android:layout_gravity="center_vertical"
+        app:chartColor="@color/chartColor"
+        app:fillColor="@color/chartBg"
+        app:passiveColor="@color/gray"
+        app:separatorColor="@color/separator"
+        app:valuesColor="@color/black" />
 
 </FrameLayout>
