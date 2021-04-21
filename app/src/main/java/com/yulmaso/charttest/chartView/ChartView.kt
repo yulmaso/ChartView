@@ -168,6 +168,32 @@ abstract class ChartView<T : ChartValue>(context: Context, attrs: AttributeSet) 
     }
 
     /**
+     *  Draw grid on [canvas] within the area of [rect] with the given [interval]
+     */
+    protected fun drawGrid(canvas: Canvas, rect: RectF, interval: Float) {
+        paint.reset()
+        paint.style = Paint.Style.FILL_AND_STROKE
+        paint.isAntiAlias = true
+        paint.strokeWidth = 2f
+        paint.color = separatorColor
+
+        canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint)
+        canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint)
+        canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint)
+        canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint)
+
+        val horizCount = (rect.width() / interval).toInt()
+        val vertCount = (rect.height() / interval).toInt()
+
+        for (i in 1..horizCount) {
+            canvas.drawLine(rect.left, rect.top + interval * i, rect.right, rect.top + interval * i, paint)
+        }
+        for (i in 1..vertCount) {
+            canvas.drawLine(rect.left + interval * i, rect.top, rect.left + interval * i, rect.bottom, paint)
+        }
+    }
+
+    /**
      *  Draw the [text] with [color] on [canvas] which bottom center is at ([x], [y]).
      *  Set [bold] to true to make this text bold.
      */

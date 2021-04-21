@@ -66,6 +66,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        findViewById<Button>(R.id.grid_btn).setOnClickListener {
+            Intent(this, GridActivity::class.java).also {
+                startActivity(it)
+            }
+        }
+
         findViewById<Button>(R.id.test_btn).setOnClickListener {
             Intent(this, TestActivity::class.java).also {
                 startActivity(it)
